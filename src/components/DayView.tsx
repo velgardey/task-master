@@ -9,9 +9,9 @@ interface DayViewProps {
 }
 
 const DayView: React.FC<DayViewProps> = ({ tasks, date, onUpdate }) => {
-  const filteredTasks = tasks.filter(
-    (task) => new Date(task.dueDate).toDateString() === date.toDateString()
-  );
+  const filteredTasks = tasks
+    .filter((task) => new Date(task.dueDate).toDateString() === date.toDateString())
+    .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
 
   return (
     <div className="space-y-4">
@@ -20,7 +20,7 @@ const DayView: React.FC<DayViewProps> = ({ tasks, date, onUpdate }) => {
         <p className="text-muted-foreground">No tasks for this day.</p>
       ) : (
         filteredTasks.map((task) => (
-          <TaskItem key={task.id} task={task} onUpdate={onUpdate} />
+          <TaskItem key={task.id} task={task} onUpdate={onUpdate} showDate={false} />
         ))
       )}
     </div>
