@@ -38,48 +38,59 @@ export default function Home() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
-            <h1 className="text-6xl font-extrabold mb-12 text-center bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-foreground">
+      <h1 className="text-6xl font-extrabold mb-12 text-center bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-foreground">
         Task Master
       </h1>
       <div className="bg-secondary/30 dark:bg-card/20 rounded-xl shadow-md dark:shadow-primary/5 p-6 mb-8">
         <ProgressBar tasks={tasks} selectedDate={selectedDate || new Date()} />
       </div>
-<div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-  <div className="lg:col-span-1 space-y-8">
-    <div className="bg-secondary/30 dark:bg-card/20 rounded-xl shadow-md dark:shadow-primary/5 p-6">
-      <h2 className="text-2xl font-semibold mb-4">Calendar</h2>
-      <Calendar tasks={tasks} onSelectDate={handleSelectDate} selected={selectedDate} />
-    </div>
-    {selectedDate && (
-      <div className="bg-secondary/30 dark:bg-card/20 rounded-xl shadow-md dark:shadow-primary/5 p-6">
-        <DayView tasks={tasks} date={selectedDate} onUpdate={handleUpdate} />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-1 space-y-8">
+          <div className="bg-secondary/30 dark:bg-card/20 rounded-xl shadow-md dark:shadow-primary/5 p-6">
+            <h2 className="text-2xl font-semibold mb-4">Calendar</h2>
+            <Calendar
+              tasks={tasks}
+              onSelectDate={handleSelectDate}
+              selected={selectedDate}
+            />
+          </div>
+          {selectedDate && (
+            <div className="bg-secondary/30 dark:bg-card/20 rounded-xl shadow-md dark:shadow-primary/5 p-6">
+              <DayView
+                tasks={tasks}
+                date={selectedDate}
+                onUpdate={handleUpdate}
+              />
+            </div>
+          )}
+        </div>
+        <div className="lg:col-span-2 space-y-8">
+          <div className="bg-secondary/30 dark:bg-card/20 rounded-xl shadow-md dark:shadow-primary/5 p-6">
+            <h2 className="text-2xl font-semibold mb-4">Add New Task</h2>
+            <TaskForm onTaskAdded={handleUpdate} />
+          </div>
+          <div className="bg-secondary/30 dark:bg-card/20 rounded-xl shadow-md dark:shadow-primary/5 p-6">
+            <h2 className="text-2xl font-semibold mb-4">All Tasks</h2>
+            <Input
+              type="text"
+              placeholder="Search tasks..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="mb-6"
+            />
+            <TaskList
+              tasks={tasks.filter(
+                (task) =>
+                  task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                  task.description
+                    ?.toLowerCase()
+                    .includes(searchTerm.toLowerCase())
+              )}
+              onUpdate={handleUpdate}
+            />
+          </div>
+        </div>
       </div>
-    )}
-  </div>
-  <div className="lg:col-span-2 space-y-8">
-    <div className="bg-secondary/30 dark:bg-card/20 rounded-xl shadow-md dark:shadow-primary/5 p-6">
-      <h2 className="text-2xl font-semibold mb-4">Add New Task</h2>
-      <TaskForm onTaskAdded={handleUpdate} />
-    </div>
-    <div className="bg-secondary/30 dark:bg-card/20 rounded-xl shadow-md dark:shadow-primary/5 p-6">
-      <h2 className="text-2xl font-semibold mb-4">All Tasks</h2>
-      <Input
-        type="text"
-        placeholder="Search tasks..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="mb-6"
-      />
-      <TaskList
-        tasks={tasks.filter(task =>
-          task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          task.description?.toLowerCase().includes(searchTerm.toLowerCase())
-        )}
-        onUpdate={handleUpdate}
-      />
-    </div>
-  </div>
-</div>
       <button
         onClick={toggleTheme}
         className="fixed bottom-6 right-6 p-3 rounded-full bg-primary text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300"
