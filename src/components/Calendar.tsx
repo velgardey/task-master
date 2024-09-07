@@ -19,16 +19,18 @@ const modifiersStyles = {
 
 const calendarClassNames = {
   day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
-  day_today: "bg-accent text-accent-foreground",
-  day: "w-10 h-10 p-0 font-normal aria-selected:opacity-100 hover:bg-secondary hover:text-secondary-foreground transition-colors",
+  day_today: "bg-accent text-accent-foreground font-bold",
+  day: "w-10 h-10 p-0 font-normal text-black dark:text-foreground aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground transition-colors",
   cell: "relative p-0 text-center text-sm focus-within:relative focus-within:z-20",
+  caption_label: "text-black dark:text-foreground font-medium",
+  nav_button: "text-black dark:text-foreground",
 };
 
 const Calendar: React.FC<CalendarProps> = ({ tasks, onSelectDate, selected }) => {
   const taskDates: Date[] = tasks.map((task) => new Date(task.dueDate));
 
   return (
-    <div className="p-4 bg-card rounded-lg shadow-md transition-all duration-300 ease-in-out hover:shadow-lg">
+    <div className="p-4 bg-white dark:bg-card rounded-lg shadow-sm transition-all duration-300 ease-in-out hover:shadow-md border border-secondary">
       <CalendarUI
         mode="single"
         selected={selected}

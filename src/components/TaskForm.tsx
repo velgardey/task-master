@@ -51,81 +51,97 @@ const TaskForm: React.FC<TaskFormProps> = ({ onTaskAdded, initialDate }) => {
     onTaskAdded();
   };
 
+  const calendarClassNames = {
+    day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+    day_today: "bg-accent text-accent-foreground font-bold",
+    day: "w-10 h-10 p-0 font-normal text-foreground dark:text-foreground aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground transition-colors",
+    cell: "relative p-0 text-center text-sm focus-within:relative focus-within:z-20",
+    caption_label: "text-foreground dark:text-foreground font-medium",
+    nav_button: "text-foreground dark:text-foreground",
+  };
+
+
   return (
     <form
       onSubmit={handleSubmit}
       className="space-y-6 bg-card p-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ease-in-out"
     >
-      <Input
-        type="text"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="Task title"
-        required
-        className="text-xl font-semibold"
+<Input
+  type="text"
+  value={title}
+  onChange={(e) => setTitle(e.target.value)}
+  placeholder="Task title"
+  required
+  className="text-xl font-semibold text-foreground text-black dark:text-foreground"
+/>
+<Textarea
+  value={description}
+  onChange={(e) => setDescription(e.target.value)}
+  placeholder="Task description"
+  className="h-32 text-base resize-none text-black dark:text-foreground"
+/>
+<div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+  <Popover>
+    <PopoverTrigger asChild>
+      <Button variant="outline" className="w-full sm:w-auto text-black dark:text-foreground">
+        {date ? format(date, "PPP") : <span>Pick a date</span>}
+      </Button>
+    </PopoverTrigger>
+    <PopoverContent className="w-auto p-0">
+      <Calendar
+        mode="single"
+        selected={date}
+        onSelect={setDate}
+        initialFocus
+        classNames={{
+          ...calendarClassNames,
+          day: "w-10 h-10 p-0 font-normal text-black dark:text-foreground aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground transition-colors",
+          caption_label: "text-black dark:text-foreground font-medium",
+          nav_button: "text-black dark:text-foreground",
+        }}
       />
-      <Textarea
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        placeholder="Task description"
-        className="h-32 text-base resize-none"
-      />
-      <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="outline" className="w-full sm:w-auto">
-              {date ? format(date, "PPP") : <span>Pick a date</span>}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0">
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={setDate}
-              initialFocus
-            />
-          </PopoverContent>
-        </Popover>
-        <div className="flex space-x-2">
-          <Select
-            value={time.hours}
-            onValueChange={(value) =>
-              setTime((prev) => ({ ...prev, hours: value }))
-            }
+    </PopoverContent>
+  </Popover>
+  <div className="flex space-x-2">
+    <Select
+      value={time.hours}
+      onValueChange={(value) =>
+        setTime((prev) => ({ ...prev, hours: value }))
+      }
+    >
+      <SelectTrigger className="w-[100px] text-black dark:text-foreground">
+        <SelectValue placeholder="Hours" />
+      </SelectTrigger>
+      <SelectContent>
+        {Array.from({ length: 24 }, (_, i) => i).map((hour) => (
+          <SelectItem key={hour} value={hour.toString().padStart(2, "0")}>
+            {hour.toString().padStart(2, "0")}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+    <Select
+      value={time.minutes}
+      onValueChange={(value) =>
+        setTime((prev) => ({ ...prev, minutes: value }))
+      }
+    >
+      <SelectTrigger className="w-[100px] text-black dark:text-foreground">
+        <SelectValue placeholder="Minutes" />
+      </SelectTrigger>
+      <SelectContent>
+        {Array.from({ length: 60 }, (_, i) => i).map((minute) => (
+          <SelectItem
+            key={minute}
+            value={minute.toString().padStart(2, "0")}
           >
-            <SelectTrigger className="w-[100px]">
-              <SelectValue placeholder="Hours" />
-            </SelectTrigger>
-            <SelectContent>
-              {Array.from({ length: 24 }, (_, i) => i).map((hour) => (
-                <SelectItem key={hour} value={hour.toString().padStart(2, "0")}>
-                  {hour.toString().padStart(2, "0")}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select
-            value={time.minutes}
-            onValueChange={(value) =>
-              setTime((prev) => ({ ...prev, minutes: value }))
-            }
-          >
-            <SelectTrigger className="w-[100px]">
-              <SelectValue placeholder="Minutes" />
-            </SelectTrigger>
-            <SelectContent>
-              {Array.from({ length: 60 }, (_, i) => i).map((minute) => (
-                <SelectItem
-                  key={minute}
-                  value={minute.toString().padStart(2, "0")}
-                >
-                  {minute.toString().padStart(2, "0")}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
+            {minute.toString().padStart(2, "0")}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  </div>
+</div>
       <Button type="submit" className="w-full">
         Add Task
       </Button>

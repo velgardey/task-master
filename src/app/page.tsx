@@ -38,12 +38,12 @@ export default function Home() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
-      <h1 className="text-6xl font-extrabold mb-12 text-center bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-foreground">
+            <h1 className="text-6xl font-extrabold mb-12 text-center bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-foreground">
         Task Master
       </h1>
       <div className="bg-secondary/30 dark:bg-card/20 rounded-xl shadow-md dark:shadow-primary/5 p-6 mb-8">
-  <ProgressBar tasks={tasks} selectedDate={selectedDate || new Date()} />
-</div>
+        <ProgressBar tasks={tasks} selectedDate={selectedDate || new Date()} />
+      </div>
 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
   <div className="lg:col-span-1 space-y-8">
     <div className="bg-secondary/30 dark:bg-card/20 rounded-xl shadow-md dark:shadow-primary/5 p-6">
