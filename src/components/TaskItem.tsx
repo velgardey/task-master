@@ -6,9 +6,9 @@ import { Textarea } from "./ui/textarea";
 import React, { useState } from "react";
 import { Button } from "./ui/button";
 import { motion } from "framer-motion";
-import { CalendarIcon, ClockIcon, TrashIcon, PencilIcon, XIcon } from "lucide-react";
+import { CalendarIcon, ClockIcon, TrashIcon, PencilIcon, XIcon, ShareIcon } from "lucide-react";
 import { format } from "date-fns";
-
+import ShareTask from './ShareTask';
 
 interface TaskItemProps {
   task: Task;
@@ -17,6 +17,7 @@ interface TaskItemProps {
 }
 
 const TaskItem: React.FC<TaskItemProps> = ({ task, onUpdate, showDate = true }) => {
+
   const [isEditing, setIsEditing] = useState(false);
   const [editedTask, setEditedTask] = useState(task);
 
@@ -60,7 +61,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onUpdate, showDate = true }) 
           onCheckedChange={handleComplete}
           className="mt-1 w-5 h-5"
         />
-        <div className="flex-grow space-y-2">
+        <div className="flex-grow">
           <div className="flex justify-between items-start">
             <div className="flex-grow pr-4">
               {isEditing ? (
@@ -82,14 +83,36 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onUpdate, showDate = true }) 
                 <p className="text-sm text-gray-600 dark:text-gray-400">{task.notes}</p>
               )}
             </div>
-            {!showDate && (
-              <div className="flex items-center space-x-2 text-primary">
-                <ClockIcon className="w-4 h-4" />
-                <span className="text-lg font-semibold">
-                  {format(new Date(task.dueDate), "HH:mm")}
-                </span>
-              </div>
-            )}
+            <div className="flex flex-col space-y-2">
+              {isEditing ? (
+                <>
+                  <Button onClick={handleSave} size="sm" variant="outline">
+                    <PencilIcon className="w-4 h-4" />
+                  </Button>
+                  <Button onClick={handleCancel} size="sm" variant="outline">
+                    <XIcon className="w-4 h-4" />
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button onClick={handleEdit} size="sm" variant="outline">
+                    <PencilIcon className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={handleDelete}
+                  >
+                    <TrashIcon className="w-4 h-4" />
+                  </Button>
+                  <ShareTask task={task}>
+                    <Button size="sm" variant="outline">
+                      <ShareIcon className="w-4 h-4" />
+                    </Button>
+                  </ShareTask>
+                </>
+              )}
+            </div>
           </div>
           {showDate && (
             <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-1">
@@ -97,6 +120,14 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onUpdate, showDate = true }) 
               {format(new Date(task.dueDate), "PPP")}
               <ClockIcon className="w-4 h-4 ml-4 mr-2" />
               {format(new Date(task.dueDate), "p")}
+            </div>
+          )}
+          {!showDate && (
+            <div className="flex items-center space-x-2 text-primary mt-1">
+              <ClockIcon className="w-4 h-4" />
+              <span className="text-sm font-semibold">
+                {format(new Date(task.dueDate), "HH:mm")}
+              </span>
             </div>
           )}
           {isEditing && (
@@ -108,33 +139,9 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onUpdate, showDate = true }) 
             />
           )}
         </div>
-        <div className="flex flex-col space-y-2">
-          {isEditing ? (
-            <>
-              <Button onClick={handleSave} size="sm" variant="outline">
-                <PencilIcon className="w-4 h-4" />
-              </Button>
-              <Button onClick={handleCancel} size="sm" variant="outline">
-                <XIcon className="w-4 h-4" />
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button onClick={handleEdit} size="sm" variant="outline">
-                <PencilIcon className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={handleDelete}
-              >
-                <TrashIcon className="w-4 h-4" />
-              </Button>
-            </>
-          )}
-        </div>
       </div>
     </motion.div>
   );
 };
+
 export default TaskItem;

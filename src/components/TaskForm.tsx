@@ -30,9 +30,16 @@ const TaskForm: React.FC<TaskFormProps> = ({ onTaskAdded, initialDate }) => {
   const [description, setDescription] = useState("");
   const [date, setDate] = useState<Date | undefined>(initialDate || new Date());
   const [time, setTime] = useState({ hours: "12", minutes: "00" });
+  const [category, setCategory] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
+  const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('medium');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    submitTask();
+  };
+
+  const submitTask = () => {
     const dueDate = new Date(date!);
     dueDate.setHours(parseInt(time.hours), parseInt(time.minutes));
 
@@ -43,29 +50,92 @@ const TaskForm: React.FC<TaskFormProps> = ({ onTaskAdded, initialDate }) => {
       dueDate,
       completed: false,
       notes: "",
+      category,
+      tags,
+      priority,
     };
     saveTask(newTask);
+    resetForm();
+    onTaskAdded();
+  };
+
+  const resetForm = () => {
     setTitle("");
     setDescription("");
     setDate(new Date());
     setTime({ hours: "12", minutes: "00" });
-    onTaskAdded();
+    setCategory("");
+    setTags([]);
+    setPriority('medium');
   };
 
-  const calendarClassNames = {
-    day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
-    day_today: "bg-accent text-accent-foreground font-bold",
-    day: "w-10 h-10 p-0 font-normal text-foreground dark:text-foreground aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground transition-colors",
-    cell: "relative p-0 text-center text-sm focus-within:relative focus-within:z-20",
-    caption_label: "text-foreground dark:text-foreground font-medium",
-    nav_button: "text-foreground dark:text-foreground",
+  const handleVoiceTranscript = (transcript: string) => {
+    const lowercaseTranscript = transcript.toLowerCase();
+    
+    if (lowercaseTranscript.includes('title')) {
+      const titleMatch = lowercaseTranscript.match(/title\s+(.*)/);
+      if (titleMatch) {
+        setTitle(titleMatch[1]);
+      }
+    }
+    
+    if (lowercaseTranscript.includes('description')) {
+      const descriptionMatch = lowercaseTranscript.match(/description\s+(.*)/);
+      if (descriptionMatch) {
+        setDescription(descriptionMatch[1]);
+      }
+    }
+    
+    if (lowercaseTranscript.includes('date')) {
+      const dateMatch = lowercaseTranscript.match(/date\s+(.*)/);
+      if (dateMatch) {
+        const parsedDate = new Date(dateMatch[1]);
+        if (!isNaN(parsedDate.getTime())) {
+          setDate(parsedDate);
+        }
+      }
+    }
+    
+    if (lowercaseTranscript.includes('time')) {
+      const timeMatch = lowercaseTranscript.match(/time\s+(\d{1,2}):?(\d{2})?/);
+      if (timeMatch) {
+        const hours = timeMatch[1].padStart(2, '0');
+        const minutes = (timeMatch[2] || '00').padStart(2, '0');
+        setTime({ hours, minutes });
+      }
+    }
+    
+    if (lowercaseTranscript.includes('category')) {
+      const categoryMatch = lowercaseTranscript.match(/category\s+(.*)/);
+      if (categoryMatch) {
+        setCategory(categoryMatch[1]);
+      }
+    }
+    
+    if (lowercaseTranscript.includes('tags')) {
+      const tagsMatch = lowercaseTranscript.match(/tags\s+(.*)/);
+      if (tagsMatch) {
+        setTags(tagsMatch[1].split(',').map(tag => tag.trim()));
+      }
+    }
+    
+    if (lowercaseTranscript.includes('priority')) {
+      if (lowercaseTranscript.includes('low')) {
+        setPriority('low');
+      } else if (lowercaseTranscript.includes('medium')) {
+        setPriority('medium');
+      } else if (lowercaseTranscript.includes('high')) {
+        setPriority('high');
+      }
+    }
+    
+    if (lowercaseTranscript.includes('submit') || lowercaseTranscript.includes('add task')) {
+      submitTask();
+    }
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="space-y-6 bg-card p-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ease-in-out"
-    >
+    <form onSubmit={handleSubmit} className="space-y-6 bg-card p-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ease-in-out">
       <Input
         type="text"
         value={title}
@@ -93,21 +163,13 @@ const TaskForm: React.FC<TaskFormProps> = ({ onTaskAdded, initialDate }) => {
               selected={date}
               onSelect={setDate}
               initialFocus
-              classNames={{
-                ...calendarClassNames,
-                day: "w-10 h-10 p-0 font-normal text-black dark:text-foreground aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground transition-colors",
-                caption_label: "text-black dark:text-foreground font-medium",
-                nav_button: "text-black dark:text-foreground",
-              }}
             />
           </PopoverContent>
         </Popover>
         <div className="flex space-x-2">
           <Select
             value={time.hours}
-            onValueChange={(value) =>
-              setTime((prev) => ({ ...prev, hours: value }))
-            }
+            onValueChange={(value) => setTime((prev) => ({ ...prev, hours: value }))}
           >
             <SelectTrigger className="w-[100px] text-black dark:text-foreground">
               <SelectValue placeholder="Hours" />
@@ -122,19 +184,14 @@ const TaskForm: React.FC<TaskFormProps> = ({ onTaskAdded, initialDate }) => {
           </Select>
           <Select
             value={time.minutes}
-            onValueChange={(value) =>
-              setTime((prev) => ({ ...prev, minutes: value }))
-            }
+            onValueChange={(value) => setTime((prev) => ({ ...prev, minutes: value }))}
           >
             <SelectTrigger className="w-[100px] text-black dark:text-foreground">
               <SelectValue placeholder="Minutes" />
             </SelectTrigger>
             <SelectContent>
               {Array.from({ length: 60 }, (_, i) => i).map((minute) => (
-                <SelectItem
-                  key={minute}
-                  value={minute.toString().padStart(2, "0")}
-                >
+                <SelectItem key={minute} value={minute.toString().padStart(2, "0")}>
                   {minute.toString().padStart(2, "0")}
                 </SelectItem>
               ))}
@@ -142,11 +199,39 @@ const TaskForm: React.FC<TaskFormProps> = ({ onTaskAdded, initialDate }) => {
           </Select>
         </div>
       </div>
+      
+      <Input
+        type="text"
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
+        placeholder="Category"
+        className="text-base text-black dark:text-foreground"
+      />
+      
+      <Input
+        type="text"
+        value={tags.join(', ')}
+        onChange={(e) => setTags(e.target.value.split(',').map(tag => tag.trim()))}
+        placeholder="Tags (comma-separated)"
+        className="text-base text-black dark:text-foreground"
+      />
+      
+      <Select value={priority} onValueChange={(value: 'low' | 'medium' | 'high') => setPriority(value)}>
+        <SelectTrigger className="w-full text-black dark:text-foreground">
+          <SelectValue placeholder="Select priority" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="low">Low</SelectItem>
+          <SelectItem value="medium">Medium</SelectItem>
+          <SelectItem value="high">High</SelectItem>
+        </SelectContent>
+      </Select>
+
       <div className="flex items-center justify-between">
         <Button type="submit" className="w-auto">
           Add Task
         </Button>
-        <VoiceAssistant onTaskAdded={onTaskAdded} />
+        <VoiceAssistant onTranscript={handleVoiceTranscript} />
       </div>
     </form>
   );

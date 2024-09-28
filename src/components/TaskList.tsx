@@ -3,21 +3,30 @@ import { Task } from '@/types';
 import TaskItem from './TaskItem';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from './ui/button';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 interface TaskListProps {
   tasks: Task[];
   onUpdate: () => void;
+  onReorder: (tasks: Task[]) => void;
 }
 
-const TaskList: React.FC<TaskListProps> = ({ tasks, onUpdate }) => {
+const TaskList: React.FC<TaskListProps> = ({ tasks, onUpdate, onReorder }) => {
   const [filter, setFilter] = React.useState<'all' | 'active' | 'completed'>('all');
-  const sortedTasks = [...tasks].sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
 
-  const filteredTasks = sortedTasks.filter(task => {
+  const filteredTasks = tasks.filter(task => {
     if (filter === 'active') return !task.completed;
     if (filter === 'completed') return task.completed;
     return true;
   });
+
+  const handleDragEnd = (result: any) => {
+    if (!result.destination) return;
+    const items = Array.from(filteredTasks);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+    onReorder(items);
+  };
 
   return (
     <div className="space-y-6">
@@ -47,30 +56,41 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onUpdate }) => {
           </Button>
         </div>
       </div>
-      <AnimatePresence>
-        {filteredTasks.length === 0 ? (
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="text-muted-foreground text-xl"
-          >
-            No tasks available.
-          </motion.p>
-        ) : (
-          filteredTasks.map((task) => (
-            <motion.div
-              key={task.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-            >
-              <TaskItem task={task} onUpdate={onUpdate} showDate={true} />
-            </motion.div>
-          ))
-        )}
-      </AnimatePresence>
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <Droppable droppableId="tasks">
+          {(provided) => (
+            <div {...provided.droppableProps} ref={provided.innerRef}>
+              <AnimatePresence>
+                {filteredTasks.length === 0 ? (
+                  <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="text-muted-foreground text-xl"
+                  >
+                    No tasks available.
+                  </motion.p>
+                ) : (
+                  filteredTasks.map((task, index) => (
+                    <Draggable key={task.id} draggableId={task.id} index={index}>
+                      {(provided) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                        >
+                          <TaskItem task={task} onUpdate={onUpdate} showDate={true} />
+                        </div>
+                      )}
+                    </Draggable>
+                  ))
+                )}
+              </AnimatePresence>
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
     </div>
   );
 };
