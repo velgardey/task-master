@@ -30,33 +30,33 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onUpdate, onReorder }) => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold">Tasks</h2>
-        <div className="space-x-3">
-          <Button
-            variant={filter === 'all' ? 'default' : 'outline'}
-            onClick={() => setFilter('all')}
-            className="text-lg px-6 py-3"
-          >
-            All
-          </Button>
-          <Button
-            variant={filter === 'active' ? 'default' : 'outline'}
-            onClick={() => setFilter('active')}
-            className="text-lg px-6 py-3"
-          >
-            Active
-          </Button>
-          <Button
-            variant={filter === 'completed' ? 'default' : 'outline'}
-            onClick={() => setFilter('completed')}
-            className="text-lg px-6 py-3"
-          >
-            Completed
-          </Button>
-        </div>
+    <div className="space-y-4 sm:space-y-6">
+    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
+      <h2 className="text-2xl sm:text-3xl font-bold">Tasks</h2>
+      <div className="flex w-full sm:w-auto space-x-2 sm:space-x-3">
+        <Button
+          variant={filter === 'all' ? 'default' : 'outline'}
+          onClick={() => setFilter('all')}
+          className="flex-1 sm:flex-none text-sm sm:text-lg px-3 sm:px-6 py-2 sm:py-3"
+        >
+          All
+        </Button>
+        <Button
+          variant={filter === 'active' ? 'default' : 'outline'}
+          onClick={() => setFilter('active')}
+          className="flex-1 sm:flex-none text-sm sm:text-lg px-3 sm:px-6 py-2 sm:py-3"
+        >
+          Active
+        </Button>
+        <Button
+          variant={filter === 'completed' ? 'default' : 'outline'}
+          onClick={() => setFilter('completed')}
+          className="flex-1 sm:flex-none text-sm sm:text-lg px-3 sm:px-6 py-2 sm:py-3"
+        >
+          Completed
+        </Button>
       </div>
+    </div>
       <DragDropContext onDragEnd={handleDragEnd}>
         <Droppable droppableId="tasks">
           {(provided) => (

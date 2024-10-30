@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import React, { useState, useEffect } from "react";
 import Calendar from "@/components/Calendar";
@@ -38,12 +38,12 @@ export default function Home() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-7xl">
       <motion.h1
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="text-6xl font-extrabold mb-12 text-center bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-foreground"
+        className="text-4xl sm:text-6xl font-extrabold mb-6 sm:mb-12 text-center bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-foreground"
       >
         Task Master
       </motion.h1>
